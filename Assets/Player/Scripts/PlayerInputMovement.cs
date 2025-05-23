@@ -10,6 +10,8 @@ public class PlayerInputMovement : MonoBehaviour
 
     CharacterController characterController;
     public Transform cameraContainer;
+    public PlayerCombat playerCombat;
+    public Animator animator;
 
     public float maxSpeed = 10f;
     public float mouseSensitivity = 0.2f;
@@ -67,6 +69,10 @@ public class PlayerInputMovement : MonoBehaviour
         }
 
         Locomotion();
+
+        Vector2 input = move.ReadValue<Vector2>();
+        float inputMagnitude = input.magnitude;
+        animator.SetFloat("CurrentSpeed", inputMagnitude, 0.1f, Time.deltaTime);
     }
 
     private void OnEnable()
@@ -79,7 +85,7 @@ public class PlayerInputMovement : MonoBehaviour
 
         attack = inputActions.Player.Attack;
         attack.Enable();
-        attack.performed += Attack;
+        attack.performed += context => playerCombat.Attack();
 
         dash = inputActions.Player.Dash;
         dash.Enable();
@@ -93,13 +99,7 @@ public class PlayerInputMovement : MonoBehaviour
         attack.Disable();
         dash.Disable();
     }
-
-    private void Attack(InputAction.CallbackContext context)
-    {
-        Debug.Log("Attack Button Pressed");
         
-    }
-
     void Locomotion()
     {
         if (!isDashing) // When not dashing
@@ -122,7 +122,10 @@ public class PlayerInputMovement : MonoBehaviour
         rotatePitch -= lookInput.y * mouseSensitivity;
         rotatePitch = Mathf.Clamp(rotatePitch, lookUpClamp, lookDownClamp);
 
-        cameraContainer.transform.localRotation = Quaternion.Euler(rotatePitch, rotateYaw, 0f);
+        cameraContainer.localRotation = Quaternion.Euler(rotatePitch, 0f, 0f);
+
+        // Rotate the player to face same way as camera
+        transform.rotation = Quaternion.Euler(0f, rotateYaw, 0f);
     }
 
     void TryDash()

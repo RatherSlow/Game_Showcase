@@ -1,16 +1,42 @@
+using System.Collections;
 using UnityEngine;
+
 
 public class PlayerCombat : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private Animator animator;
+    private SwordHitbox swordHitbox; 
+    private bool isAttacking = false;
+
+    public float attackDuration = 0.6f; // Total animation time
+    public float damageWindowStart = 0.2f;
+    public float damageWindowEnd = 0.4f;
+
     void Start()
     {
-        
+        animator = GetComponentInChildren<Animator>();
+        swordHitbox = GetComponentInChildren<SwordHitbox>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Attack()
     {
-        
+        if (isAttacking) return;
+
+        isAttacking = true;
+        animator.SetTrigger("LightAttack");
+        StartCoroutine(PerformAttack());
+        Debug.Log("Attack Button Pressed");
+    }
+
+    IEnumerator PerformAttack()
+    {
+        yield return new WaitForSeconds(damageWindowStart);
+        swordHitbox.canDamage = true;
+
+        yield return new WaitForSeconds(damageWindowEnd - damageWindowStart);
+        swordHitbox.canDamage = false;
+
+        yield return new WaitForSeconds(attackDuration - damageWindowEnd);
+        isAttacking = false;
     }
 }
