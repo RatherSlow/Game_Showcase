@@ -116,6 +116,8 @@ public class PlayerInputMovement : MonoBehaviour
 
     void RotateAndLook()
     {
+        if (MenuController.IsGamePaused) return;
+
         Vector2 lookInput = look.ReadValue<Vector2>();
 
         rotateYaw += lookInput.x * mouseSensitivity;

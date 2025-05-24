@@ -8,9 +8,9 @@ public class PlayerCombat : MonoBehaviour
     private SwordHitbox swordHitbox; 
     private bool isAttacking = false;
 
-    public float attackDuration = 0.6f; // Total animation time
+    public float attackDuration = 45f; // Total animation time
     public float damageWindowStart = 0.2f;
-    public float damageWindowEnd = 0.4f;
+    public float damageWindowEnd = 30f;
 
     void Start()
     {
