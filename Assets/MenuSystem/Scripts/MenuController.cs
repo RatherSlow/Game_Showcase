@@ -5,6 +5,7 @@ public class MenuController : MonoBehaviour
 {
     [SerializeField] string playScene = "SampleScene";
     [SerializeField] string mainMenuScene = "MainMenu";
+    [SerializeField] string questScene = "KnightQuestsMenuTest";
 
     [SerializeField] GameObject pauseMenuPanel;
 
@@ -63,10 +64,21 @@ public class MenuController : MonoBehaviour
         SceneManager.LoadScene(playScene);
     }
 
+    public void StartQuestGame()
+    {
+        Cursor.visible = false;
+        SceneManager.LoadScene(questScene);
+    }
+
     public void QuitGame()
     {
         Debug.Log("QUIT GAME");
         Application.Quit();
+    }
+
+    public void TestPress()
+    {
+        Debug.Log("ButtonPressed");
     }
 
 }
