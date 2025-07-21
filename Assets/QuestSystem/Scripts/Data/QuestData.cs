@@ -16,7 +16,7 @@ public class QuestData : ScriptableObject
     public int baseDifficulty;
     public string description;
 
-    public List<QuestModifier> modifiers;
+    //public List<QuestModifier> modifiers;
 
     public int goldReward;
     public int cpReward;
