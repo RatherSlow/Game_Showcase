@@ -12,8 +12,7 @@ public enum KnightRank
 
 [CreateAssetMenu(fileName = "KnightData", menuName = "Scriptable Objects/KnightData")]
 public class KnightData : ScriptableObject
-{
-    public int levelRate = 20;
+{   
 
     [Header("Identity")]
     public string id;
@@ -24,19 +23,31 @@ public class KnightData : ScriptableObject
     public int level = 1;
     public int experience = 0;
 
-    public int XPToNextLevel => 100 + (level * levelRate);
+    [SerializeField] public int levelRate = 20;
+
+    public int GetXPThresholdForCurrentLevel()
+    {
+        return 100 + (level * levelRate);
+    }
 
     public void GainXP(int amount)
     {
-        experience += amount;
-
-        while (experience >= XPToNextLevel && level < 100)
+        while (amount > 0 && level < 100)
         {
-            experience -= XPToNextLevel;
+            int xpToLevel = GetXPThresholdForCurrentLevel();
+
+            if (experience + amount < xpToLevel)
+            {
+                experience += amount;
+                break;
+            }
+
+            amount -= (xpToLevel - experience);
+            experience = 0;
             level++;
         }
     }
-    
+
     public KnightRank Rank
     {
         get

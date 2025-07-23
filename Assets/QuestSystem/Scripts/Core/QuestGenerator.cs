@@ -22,11 +22,11 @@ public static class QuestGenerator
 
             // quest.modifiers = new List<QuestModifier>
             // {
-            //     QuestModifier.AmbushRisk
+            //     insert modifiers here
             // };
 
             quest.goldReward = quest.baseDifficulty * 10;
-            quest.cpReward = quest.baseDifficulty * 2;
+            quest.xpReward = quest.baseDifficulty * 10;
 
             generatedQuests.Add(quest);
         }

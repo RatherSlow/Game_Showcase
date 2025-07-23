@@ -1,16 +1,31 @@
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class QuestUI : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("UI Elements")]
+    [SerializeField] private TextMeshProUGUI questNameText;
+    [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] private TextMeshProUGUI difficultyText;
+    [SerializeField] private TextMeshProUGUI rewardsText;
+
+    private QuestData questData;
+
+    public System.Action<QuestData> OnQuestSelected;
+
+    public void Setup(QuestData data)
     {
-        
+        questData = data;
+
+        questNameText.text = data.questName;
+        descriptionText.text = data.description;
+        difficultyText.text = $"Difficulty: {data.baseDifficulty}";
+        rewardsText.text = $"Gold: {data.goldReward} | XP: {data.xpReward}";
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnClick()
     {
-        
+        OnQuestSelected?.Invoke(questData);
     }
 }

@@ -19,5 +19,5 @@ public class QuestData : ScriptableObject
     //public List<QuestModifier> modifiers;
 
     public int goldReward;
-    public int cpReward;
+    public int xpReward;
 }
