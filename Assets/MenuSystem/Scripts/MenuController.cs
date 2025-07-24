@@ -65,8 +65,7 @@ public class MenuController : MonoBehaviour
     }
 
     public void StartQuestGame()
-    {
-        Cursor.visible = false;
+    {        
         SceneManager.LoadScene(questScene);
     }
 
