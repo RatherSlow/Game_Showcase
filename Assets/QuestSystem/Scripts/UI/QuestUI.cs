@@ -12,20 +12,26 @@ public class QuestUI : MonoBehaviour
 
     private QuestData questData;
 
-    public System.Action<QuestData> OnQuestSelected;
+    public System.Action<QuestData, QuestUI> OnQuestSelected;
 
     public void Setup(QuestData data)
     {
         questData = data;
 
         questNameText.text = data.questName;
-        descriptionText.text = data.description;
+        //descriptionText.text = data.description;
         difficultyText.text = $"Difficulty: {data.baseDifficulty}";
         rewardsText.text = $"Gold: {data.goldReward} | XP: {data.xpReward}";
     }
 
     public void OnClick()
     {
-        OnQuestSelected?.Invoke(questData);
+        OnQuestSelected?.Invoke(questData, this);
     }
+
+    public void SetSelected(bool isSelected)
+    {
+        GetComponent<Image>().color = isSelected ? Color.yellow : Color.white;
+    }
+
 }

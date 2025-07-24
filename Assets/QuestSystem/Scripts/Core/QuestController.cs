@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class QuestController : MonoBehaviour
 {
@@ -10,7 +12,7 @@ public class QuestController : MonoBehaviour
 
     [SerializeField] private GameObject questMapPanel;
     [SerializeField] private Transform questDetailPanel;
-    [SerializeField] private Transform regionContainer;
+    //[SerializeField] private Transform regionContainer;
 
     [SerializeField] private GameObject knightListPanel;
     [SerializeField] private Transform knightListContent;
@@ -22,10 +24,19 @@ public class QuestController : MonoBehaviour
     [SerializeField] private GameObject questOutcomePanel;
     [SerializeField] private GameObject topBarPanel;
 
+    [SerializeField] private QuestOutcomeUI questOutcomeUI;
+
+    [SerializeField] private Button sendButton;
+
+    private KnightEntryUI selectedKnightUI;
+    private QuestUI selectedQuestUI;
+
     private void Start()
     {
         PopulateKnightList();
         PopulateQuestList();
+        sendButton.interactable = false;
+        sendButton.onClick.AddListener(OnSendButtonClicked);
     }
 
 
@@ -35,33 +46,64 @@ public class QuestController : MonoBehaviour
     private QuestData selectedQuest;
     // Currently selected knight and quest for assignment.
 
-    private void HandleKnightSelected(KnightData knight)
-    {
+    private void HandleKnightSelected(KnightData knight, KnightEntryUI knightUI)
+    {        
+        if (selectedKnightUI != null)
+            selectedKnightUI.SetSelected(false); // unhighlight previous
+
         selectedKnight = knight;
-        Debug.Log($"Selected knight: {knight.knightName}");        
+        selectedKnightUI = knightUI;
+        Debug.Log($"Selected knight: {knight.knightName}");
+
+        selectedKnightUI.SetSelected(true);
+        UpdateSendButtonState();
     }
 
     // Assignment Logic
     public void AssignKnightToQuest(KnightData knight, QuestData quest)
     {
-        selectedKnight = knight;
-        selectedQuest = quest;
+        ResolveQuest(knight, quest/*, selectedRegion*/);
+    }   
 
-        ResolveQuest(selectedKnight, selectedQuest, selectedRegion);
-    }
-    // Method to assign knight to a quest
-    // Triggers resolution, adjusts stats, updates outcomes.
-
-    private void HandleQuestSelected(QuestData quest)
+    private void HandleQuestSelected(QuestData quest, QuestUI QuestUI)
     {
+        if (selectedQuestUI != null)
+            selectedQuestUI.SetSelected(false); // unhighlight previous
+
         selectedQuest = quest;
+        selectedQuestUI = QuestUI;
         Debug.Log($"Selected quest: {quest.questName}");
+
+        selectedQuestUI.SetSelected(true);
+        UpdateSendButtonState();
     }
 
     // Quest Resolution Logic
-    public void ResolveQuest(KnightData selectedKnight, QuestData selectedQuest, RegionData selectedRegion)
+    public void ResolveQuest(KnightData selectedKnight, QuestData selectedQuest/*, RegionData selectedRegion*/)
     {
+        string summary = $"Knight {selectedKnight.knightName} completed '{selectedQuest.questName}'\n" +
+                 $"Gained {selectedQuest.xpReward} XP, {selectedQuest.goldReward} gold.";
 
+        selectedKnight.GainXP(selectedQuest.xpReward);
+        selectedKnightUI.UpdateLevelAndRank();
+        questOutcomeUI.ShowOutcome(summary);
+        
+
+        this.selectedKnight = null;
+        this.selectedQuest = null;
+
+        if (selectedKnightUI != null)
+        {
+            selectedKnightUI.SetSelected(false);
+            selectedKnightUI = null;
+        }
+        if (selectedQuestUI != null)
+        {
+            selectedQuestUI.SetSelected(false);
+            selectedQuestUI = null;
+        }
+
+        UpdateSendButtonState();
     }
 
     public void PopulateKnightList()
@@ -77,9 +119,15 @@ public class QuestController : MonoBehaviour
         {
             GameObject knightInst = Instantiate(knightEntryPrefab, knightListContent);
             KnightEntryUI knightUI = knightInst.GetComponent<KnightEntryUI>();
-            knightUI.Setup(knight);
-                        
-            knightUI.OnKnightSelected = HandleKnightSelected;
+            if (knightUI != null)
+            {
+                knightUI.Setup(knight);
+                knightUI.OnKnightSelected = HandleKnightSelected;
+            }
+            else
+            {
+                Debug.LogError("KnightEntryUI component missing from knightEntryPrefab!", knightInst);
+            }
         }
     }
 
@@ -96,12 +144,32 @@ public class QuestController : MonoBehaviour
         {
             GameObject questInst = Instantiate(questEntryPrefab, questListContent);
             QuestUI questUI = questInst.GetComponent<QuestUI>();
-            questUI.Setup(quest);
-
-            questUI.OnQuestSelected = HandleQuestSelected;
+            if (questUI != null)
+            {
+                questUI.Setup(quest);
+                questUI.OnQuestSelected = HandleQuestSelected;
+            }
+            else
+            {
+                Debug.LogError("QuestUI component missing from QuestPrefab!", questInst);
+            }
         }
     }
 
+    private void UpdateSendButtonState()
+    {
+        sendButton.interactable = (selectedKnight != null && selectedQuest != null);
+    }
+
+    public void OnSendButtonClicked()
+    {
+        if (selectedKnight != null && selectedQuest != null)
+        {
+            AssignKnightToQuest(selectedKnight, selectedQuest);
+        }
+    }
+
+    // To Do
     // Calculates success/failure based on:
     // - Knight stats
     // - Quest difficulty/modifiers
@@ -115,7 +183,5 @@ public class QuestController : MonoBehaviour
     // Could Lerp randomness between full random and deterministic.
 
 
-    // UI Feedback
-    // ------------------
-    // Triggers UI updates, shows results, resets selection, etc.
+    
 }
